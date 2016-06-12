@@ -250,6 +250,10 @@
                 <section>
                     Demo time
                 </section>
+				<section data-background-video="img/demo-v1.webm">
+				</section>
+				<section data-background-video="img/demo-v2.webm">
+				</section>
                 <section>
                     AWS CLI
                     <pre><code>
@@ -273,7 +277,20 @@
                     </aside>
                 </section>
                 <section>
-                    Immutable
+                    <h3>Some tricks</h3>
+                    <ul>
+                        <li>Use parameters with caution</li>
+                        <li>Use the best practice that you use without cloudformation</li>
+                    <ul>
+                </section>
+                <section>
+                    <h3>Case studies</h3>
+                    <ul>
+                        <li><a href="https://github.com/gilt/nova">gilt/nova:</a> Collection of utilities to easily deploy services to AWS.</li>
+                        <li><a href="https://github.com/serverless/serverless">serverless/serverless</a> Framework to manage serverless application</li>
+                        <li>Your continuous integration pipeline</li>
+                        <li>If you are a consultant it's a great way to build an infrastructure for your client and leave that managable without you</li>
+                    <ul>
                 </section>
                 <section>
                     <h2>Thanks!</h2>
@@ -309,7 +326,7 @@
 					{ src: 'plugin/notes/notes.js', async: true }
 				]
 			});
-Reveal.configure({
+            Reveal.configure({
                 keyboard: {
                     38: "prev",
                     40: "next"
