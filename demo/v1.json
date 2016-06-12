@@ -1,0 +1,108 @@
+{
+  "Parameters" : {
+    "VPCName" : {
+      "Type" : "String",
+      "Default" : "staging",
+      "Description" : "VPC name"
+    }
+  },
+  "Resources" : {
+    "Staging": {
+       "Type" : "AWS::EC2::VPC",
+       "Properties" : {
+          "CidrBlock" : "10.15.0.0/16",
+          "EnableDnsSupport" : true,
+          "EnableDnsHostnames" : true,
+          "InstanceTenancy" : "default",
+          "Tags" : [{"Key": "Name", "Value": {"Ref": "VPCName"}}]
+       }
+    },
+    "DatabaseSubnet1": {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "AvailabilityZone" : "eu-west-1a",
+        "CidrBlock" : "10.15.1.0/28",
+        "MapPublicIpOnLaunch" : true,
+        "VpcId": {
+          "Ref" : "Staging"
+        },
+        "Tags": [{"Key": "Name", "Value": "db-1a"}]
+      }
+    },
+    "StagingIgwAttach": {
+      "Type" : "AWS::EC2::VPCGatewayAttachment",
+      "Properties" : {
+        "InternetGatewayId" : {"Ref": "StagingInternetGateway"},
+        "VpcId" : {"Ref": "Staging"}
+      }
+    },
+    "StagingInternetGateway" : {
+      "Type" : "AWS::EC2::InternetGateway",
+      "Properties" : {
+        "Tags" : [ {"Key" : "Name", "Value" : {"Fn::Join":["-", [{"Ref":"VPCName"}, "igw"]]}}]
+      }
+    },
+    "DatabaseSubnet2": {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "AvailabilityZone" : "eu-west-1b",
+        "CidrBlock" : "10.15.1.16/28",
+        "MapPublicIpOnLaunch" : true,
+        "VpcId": {
+          "Ref" : "Staging"
+        },
+        "Tags" : [{"Key": "Name", "Value": "db-1b"}]
+      }
+    },
+    "WebSubnet1": {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "AvailabilityZone" : "eu-west-1a",
+        "CidrBlock" : "10.15.0.8/28",
+        "MapPublicIpOnLaunch" : true,
+        "VpcId": {
+          "Ref" : "Staging"
+        },
+        "Tags" : [{"Key": "Name", "Value": "web-1a"}]
+      }
+    },
+    "WebSG": {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Web security groups",
+        "SecurityGroupIngress" : [
+          {
+            "IpProtocol" : "tcp",
+            "ToPort" : 80,
+            "FromPort": 80,
+            "CidrIp" : "0.0.0.0/0"
+          },
+          {
+            "IpProtocol" : "tcp",
+            "ToPort" : 22,
+            "FromPort": 22,
+            "CidrIp" : "0.0.0.0/0"
+          }
+        ],
+        "Tags" :  [{"Key": "Name", "Value": "web-sg"}],
+        "VpcId" : {"Ref": "Staging"}
+      }
+    },
+    "DatabaseSG": {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Database security groups",
+        "SecurityGroupIngress" : [
+          {
+            "IpProtocol" : "tcp",
+            "FromPort": 3306,
+            "ToPort" : "3306",
+            "SourceSecurityGroupId": {"Ref" : "WebSG"}
+          }
+        ],
+        "Tags" :  [{"Key": "Name", "Value": "db-sg"}],
+        "VpcId" : {"Ref": "Staging"}
+      }
+    }
+  }
+}

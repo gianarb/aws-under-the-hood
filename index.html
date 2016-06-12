@@ -4,10 +4,10 @@
 	<head>
 		<meta charset="utf-8">
 
-		<title>reveal.js – The HTML Presentation Framework</title>
+		<title>CloudFormation - AWS under the Hood</title>
 
-		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
-		<meta name="author" content="Hakim El Hattab">
+		<meta name="description" content="DevOps and orchestration on AWS with Cloud Formation">
+		<meta name="author" content="Gianluca Arbezzano">
 
 		<meta name="apple-mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,7 +15,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
 
 		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/thumpflow.css" id="theme">
+		<link rel="stylesheet" href="css/theme/gianarb_cf.css" id="theme">
 
 		<!-- Code syntax highlighting -->
 		<link rel="stylesheet" href="lib/css/github-gist.css">
@@ -41,33 +41,245 @@
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
 				<section>
-					<h1>Reveal.js</h1>
-					<h3>The HTML Presentation Framework</h3>
-					<p>
-						<small>Created by <a href="http://hakim.se">Hakim El Hattab</a> / <a href="http://twitter.com/hakimel">@hakimel</a></small>
-					</p>
+					<h1>AWS Under the Hood</h1>
+					<h3>Orchestration by Amazon Web Service</h3>
 				</section>
 
 				<section>
-                    <pre><code lang="php">
-class Foo {
-  var $bar;
-
-  function setBar($value) {
-    $this->bar = $value;
-  }
-
-  function someFunction($param) {
-    echo $param.$this->bar."<br/>";
-  }
-}
-
-$foo = new Foo();
-$foo->setBar("Charles");
-$foo->someFunction("Hello, ");
-                    </code></pre>
+					<h1>Gianluca Arbezzano</h1>
+					<h3>Software Engineer at CurrencyFair</h3>
 				</section>
 
+				<section>
+                    <p>
+                        <h3>OpenSource maintainer</h3>
+                        <span class="fragment" data-fragment-index="1">
+                            <img src="img/vim.png" width="200px">
+                        </span>
+                        <span class="fragment" data-fragment-index="2">
+                            <img src="img/influxdb.jpg" width="200px">
+                        </span>
+                        <span class="fragment" data-fragment-index="3">
+                            <img src="img/doctrine.png" width="200px">
+                        </span>
+                        <span class="fragment" data-fragment-index="4">
+                            <img src="img/pennyphp.png" width="200px">
+                        </span>
+                    </p>
+                    <p><a href="https://twitter.com/gianarb" target="_blank">twitter.com/gianarb</a> - <a href="https://github.com/gianarb" target="_blank">github.com/gianarb</a></p>
+				</section>
+
+				<section>
+                    <p>
+                        <h3>Docker Captain and DevOps culture's follower</h3>
+                        <img src="img/docker-captain.png">
+                    </p>
+                    <p><a href="https://twitter.com/gianarb" target="_blank">twitter.com/gianarb</a> - <a href="https://github.com/gianarb" target="_blank">github.com/gianarb</a></p>
+				</section>
+
+				<section>
+                    <h3>Orchestration</h3>
+                    <blockquote>Orchestration is the automated arrangement,
+                        coordination, and management of complex computer systems,
+                        middleware and services.
+                        <p>cit. Wikipedia<p>
+                    </blockquote>
+				</section>
+
+				<section data-background="img/orchestra.jpg">
+				</section>
+
+				<section>
+                    <h3>Automation</h3>
+                    Make reproducible tasks less boring
+                     <aside class="notes">
+                        Orchestration is the automated arrangement
+                    </aside>
+				</section>
+
+				<section>
+                    <h3>AwServices!!</h3>
+                    AWS is a big provider of a lot of different services
+                     <aside class="notes">
+                        management of complex computer systems, middleware and
+                        services
+                    </aside>
+				</section>
+
+				<section>
+                    <img src="img/console.png">
+				</section>
+
+				<section data-background-size="65%" data-background="img/infra.png">
+                     <aside class="notes">
+                         when you start you can not stop
+                    </aside>
+				</section>
+
+				<section>
+                    We need a way to order all the things!
+				</section>
+
+				<section>
+                    <img style="float:left"src="img/aws-cloudformation.svg">
+                    <p>AWS CloudFormation gives developers and systems
+                    administrators an easy way to create and manage a
+                    collection of related AWS resources, provisioning and
+                    updating them in an orderly and predictable fashion.</p>
+				</section>
+
+				<section>
+                    <h2>Flexible and declarative<h2>
+				</section>
+
+				<section>
+                    <h2>Customized via parameters<h2>
+				</section>
+
+				<section>
+                    <h2>It provisions AWS resources in order<h2>
+				</section>
+
+				<section>
+                    <h2>Reusable<h2>
+				</section>
+
+				<section>
+                    <p><b>Template</b></p>
+                    <img width="200px" src="img/template.png">
+                    <p>it is a JSON formatted file. It describes PARAMTERS, RESOURCES and ACTION</p>
+				</section>
+				<section>
+                    <b>CloudFormation</b> platform to create, delete and update stacks and manage errors and rolbacks.
+				</section>
+				<section>
+                    <p><b>Stack</b></p>
+                    <img width="200px" src="img/stack.png">
+                    <p> When you use AWS CloudFormation, you manage related resources as a single unit called a stack.</p>
+				</section>
+				<section>
+                    <b>Change set</b>
+                    <p> you can generate a change set, which is summary of your proposed changes.</p>
+				</section>
+
+				<section data-background="img/cloudformation-actors.png" data-background-size="60%">
+				</section>
+
+				<section>
+                    <h2>Welcome into the infrastructure as a code world!</h2>
+                    <p>versioning, update, delete fast</p>
+				</section>
+
+				<section>
+                    <pre><code lang="json">
+{
+  "Parameters" : {
+    "VPCName" : {
+      "Type" : "String",
+      "Default" : "staging",
+      "Description" : "VPC name"
+    }
+  },
+  "Resources" : {
+    "Staging": {
+       "Type" : "AWS::EC2::VPC",
+       "Properties" : {
+          "CidrBlock" : "10.15.0.0/16",
+          "EnableDnsSupport" : true,
+          "EnableDnsHostnames" : true,
+          "InstanceTenancy" : "default",
+          "Tags" : [{"Key": "Name", "Value": {"Ref": "VPCName"}}]
+       }
+    }
+  }
+}
+                </code></pre>
+                 <aside class="notes">
+                     Princial chapters, RESOURCES and PARAMETERS, connection between them (VPCName)
+                </aside>
+				</section>
+
+				<section>
+                    <pre><code lang="json">
+{
+    "Resources" : {
+        "Staging": {
+           "Type" : "AWS::EC2::VPC",
+           "Properties" : {
+              "CidrBlock" : "10.15.0.0/16",
+              "EnableDnsSupport" : true,
+              "EnableDnsHostnames" : true,
+              "InstanceTenancy" : "default",
+              "Tags" : [{"Key": "Name", "Value": {"Ref": "VPCName"}}]
+           }
+        },
+        "DatabaseSubnet1": {
+          "Type" : "AWS::EC2::Subnet",
+          "Properties" : {
+            "AvailabilityZone" : "eu-west-1a",
+            "CidrBlock" : "10.15.1.0/28",
+            "MapPublicIpOnLaunch" : true,
+            "VpcId": {"Ref" : "Staging"},
+            "Tags": [{"Key": "Name", "Value": "db-1a"}]
+          }
+        }
+    }
+}
+                    </code></pre>
+                     <aside class="notes">
+                         Connections between resources, in this case Subnet1 and Staging like VPC.
+                         This could be also an example of update.
+                    </aside>
+				</section>
+				<section>
+                    <p><a href="https://github.com/cloudtools/troposphere">github.com/cloudtools/troposphere</a></p>
+                    Usually the template become really big and difficult to maintain, troposphere helps you to manage and create templates.
+				</section>
+				<section>
+                    <h3>AWS CloudFormation Designer</h3>
+				</section>
+				<section data-background-video="img/designer.webm">
+				</section>
+				<section>
+                    but remember, it's just a JSON.
+				</section>
+
+                <section data-background="img/infra.jpg" data-background-size="80%">
+                </section>
+
+                <section>
+                    Demo time
+                </section>
+                <section>
+                    AWS CLI
+                    <pre><code>
+    aws cloudformation create-stack
+
+        --stack-name devops_stage
+
+        --template-body file:///home/gianarb/devops.json
+
+        --parameters VPCName=staging,AppName=test
+                    </code></pre>
+                     <aside class="notes">
+                         You can do anything with the CLI, it allows you to integrate this technology in your CI or delivery system
+                    </aside>
+                </section>
+                <section>
+                    <h3>Manage your application</h3>
+                    codedeploy, Elastic Beanstalk..
+                     <aside class="notes">
+                         Not only for infrastructure
+                    </aside>
+                </section>
+                <section>
+                    Immutable
+                </section>
+                <section>
+                    <h2>Thanks!</h2>
+                    <a href="http://gianarb.it" target="_blank">gianarb.it<a>
+                    <p><a href="https://twitter.com/gianarb" target="_blank">twitter.com/gianarb</a> - <a href="https://github.com/gianarb" target="_blank">github.com/gianarb</a></p>
+                </section>
 			</div>
 
 		</div>
@@ -97,6 +309,13 @@ $foo->someFunction("Hello, ");
 					{ src: 'plugin/notes/notes.js', async: true }
 				]
 			});
+Reveal.configure({
+                keyboard: {
+                    38: "prev",
+                    40: "next"
+                }
+            });
+
 
 		</script>
 

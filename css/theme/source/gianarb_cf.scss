@@ -56,3 +56,11 @@ section p span {
     padding: 3px;
     font-size: 0.8em;
 }
+
+.reveal pre code {
+    max-height: 100%;
+}
+
+.reveal pre {
+    box-shadow: none;
+}

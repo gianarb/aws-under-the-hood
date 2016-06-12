@@ -1,0 +1,280 @@
+{
+  "Parameters" : {
+    "VPCName" : {
+      "Type" : "String",
+      "Default" : "staging",
+      "Description" : "VPC name"
+    },
+    "ProjectName" : {
+      "Type" : "String",
+      "Default" : "app",
+      "Description" : "Project name"
+    },
+    "WebKey" : {
+      "Type" : "String",
+      "Default" : "web-key",
+      "Description" : "Ssh key to log into the web instances"
+    },
+    "WebInstanceType" : {
+      "Type" : "String",
+      "Default" : "m3.medium",
+      "Description" : "Web instance type"
+    },
+    "WebInstanceImage" : {
+      "Type" : "String",
+      "Default" : "ami-47a23a30",
+      "Description" : "Web instance image"
+    },
+    "DatabaseInstanceType" : {
+      "Type" : "String",
+      "Default" : "db.m3.medium",
+      "Description" : "Database instance type"
+    },
+    "DatabaseName" : {
+      "Type" : "String",
+      "Default" : "mydb",
+      "Description" : "Database instance's name"
+    },
+    "DatabaseMasterUsername" : {
+      "Type" : "String",
+      "Default" : "gianarb",
+      "Description" : "Name of master user"
+    },
+    "DatabaseEngineVersion" : {
+      "Type" : "String",
+      "Default" : "5.6",
+      "Description" : "MySQL version"
+    },
+    "DatabaseUserPassword" : {
+      "Type" : "String",
+      "Default" : "test1234",
+      "Description" : "User password"
+    },
+    "DatabasePublicAccess" : {
+      "Type" : "String",
+      "Default" : true
+    },
+    "DatabaseMultiAZ" : {
+      "Type" : "String",
+      "Default" : false
+    }
+  },
+  "Resources" : {
+    "Staging": {
+       "Type" : "AWS::EC2::VPC",
+       "Properties" : {
+          "CidrBlock" : "10.15.0.0/16",
+          "EnableDnsSupport" : true,
+          "EnableDnsHostnames" : true,
+          "InstanceTenancy" : "default",
+          "Tags" : [{"Key": "Name", "Value": {"Ref": "VPCName"}}]
+       }
+    },
+    "DatabaseSubnet1": {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "AvailabilityZone" : "eu-west-1a",
+        "CidrBlock" : "10.15.1.0/28",
+        "MapPublicIpOnLaunch" : true,
+        "VpcId": {
+          "Ref" : "Staging"
+        },
+        "Tags": [{"Key": "Name", "Value": "db-1a"}]
+      }
+    },
+    "DatabaseSubnet2": {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "AvailabilityZone" : "eu-west-1b",
+        "CidrBlock" : "10.15.1.16/28",
+        "MapPublicIpOnLaunch" : true,
+        "VpcId": {
+          "Ref" : "Staging"
+        },
+        "Tags" : [{"Key": "Name", "Value": "db-1b"}]
+      }
+    },
+    "WebSubnet1": {
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "AvailabilityZone" : "eu-west-1a",
+        "CidrBlock" : "10.15.0.8/28",
+        "MapPublicIpOnLaunch" : true,
+        "VpcId": {
+          "Ref" : "Staging"
+        },
+        "Tags" : [{"Key": "Name", "Value": "web-1a"}]
+      }
+    },
+    "RDSSubnet": {
+     "Type" : "AWS::RDS::DBSubnetGroup",
+     "Properties" : {
+        "DBSubnetGroupDescription": "db-prod-subnet-group",
+        "SubnetIds" : [
+          { "Ref": "DatabaseSubnet1" },
+          { "Ref": "DatabaseSubnet2" }
+        ]
+      }
+    },
+    "Database": {
+      "Type" : "AWS::RDS::DBInstance",
+      "Properties" : {
+        "AllocatedStorage": "5",
+        "AllowMajorVersionUpgrade" : false,
+        "DBInstanceClass": {"Ref":"DatabaseInstanceType"},
+        "DBName" : {"Ref":"DatabaseName"},
+        "DBInstanceIdentifier": {"Ref":"DatabaseName"},
+        "Engine" : "MySQL",
+        "EngineVersion" : {"Ref":"DatabaseEngineVersion"},
+        "DBSubnetGroupName": {
+          "Ref": "RDSSubnet"
+        },
+        "MasterUsername" : {"Ref": "DatabaseMasterUsername"},
+        "MasterUserPassword" : {"Ref": "DatabaseUserPassword"},
+        "MultiAZ" : true,
+        "VPCSecurityGroups": [
+          {
+            "Ref": "DatabaseSG"
+          }
+        ],
+        "PubliclyAccessible" : {"Ref": "DatabasePublicAccess"},
+        "Tags" : [{"Key": "Name", "Value": {"Fn::Join":[".", ["db", {"Ref": "ProjectName"}, {"Ref":"VPCName"}]]} }]
+      }
+    },
+    "WebInstance" : {
+        "Type" : "AWS::EC2::Instance",
+        "Properties" : {
+            "ImageId" : {"Ref": "WebInstanceImage"},
+            "InstanceType" : {"Ref": "WebInstanceType"},
+            "KeyName" : {"Ref": "WebKey"},
+            "BlockDeviceMappings" : [
+                {
+                    "DeviceName" : "/dev/sdm",
+                    "Ebs" : {
+                        "VolumeType" : "io1",
+                        "Iops" : "200",
+                        "DeleteOnTermination" : "false",
+                        "VolumeSize" : "20"
+                    }
+                },
+                {
+                    "DeviceName" : "/dev/sdk",
+                    "NoDevice" : {}
+                 }
+            ],
+            "SubnetId": { "Ref" : "WebSubnet1" },
+            "SecurityGroupIds": [
+                {"Ref": "WebSG"}
+            ]
+        }
+    },
+    "StagingZone": {
+      "Type" : "AWS::Route53::HostedZone",
+      "Properties" : {
+        "Name" : {"Fn::Join":[".", [{"Ref": "ProjectName"}, {"Ref":"VPCName"}]]},
+        "VPCs" : [{"VPCId": {"Ref": "Staging"}, "VPCRegion": "eu-west-1"}]
+      }
+    },
+    "StagingInternetGateway" : {
+      "Type" : "AWS::EC2::InternetGateway",
+      "Properties" : {
+        "Tags" : [ {"Key" : "Name", "Value" : {"Fn::Join":["-", [{"Ref":"VPCName"}, "igw"]]}}]
+      }
+    },
+    "StagingIgwAttach": {
+      "Type" : "AWS::EC2::VPCGatewayAttachment",
+      "Properties" : {
+        "InternetGatewayId" : {"Ref": "StagingInternetGateway"},
+        "VpcId" : {"Ref": "Staging"}
+      }
+    },
+    "StagingRouteTable": {
+       "Type" : "AWS::EC2::RouteTable",
+       "Properties" : {
+          "VpcId" : {"Ref": "Staging"}
+       }
+    },
+    "LocalRoute": {
+       "Type" : "AWS::EC2::Route",
+       "Properties" : {
+          "DestinationCidrBlock" : "0.0.0.0/0",
+          "GatewayId" : {"Ref": "StagingInternetGateway"},
+          "RouteTableId" : {"Ref": "StagingRouteTable"}
+       }
+    },
+    "Web1LocalRoute": {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "RouteTableId" : {"Ref": "StagingRouteTable"},
+        "SubnetId" : {"Ref": "WebSubnet1"}
+      }
+    },
+    "Db1LocalRoute": {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "RouteTableId" : {"Ref": "StagingRouteTable"},
+        "SubnetId" : {"Ref": "DatabaseSubnet1"}
+      }
+    },
+    "Db2LocalRoute": {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "RouteTableId" : {"Ref": "StagingRouteTable"},
+        "SubnetId" : {"Ref": "DatabaseSubnet2"}
+      }
+    },
+    "DatabaseSG": {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Database security groups",
+        "SecurityGroupIngress" : [
+          {
+            "IpProtocol" : "tcp",
+            "FromPort": 3306,
+            "ToPort" : "3306",
+            "SourceSecurityGroupId": {"Ref" : "WebSG"}
+          }
+        ],
+        "Tags" :  [{"Key": "Name", "Value": "db-sg"}],
+        "VpcId" : {"Ref": "Staging"}
+      }
+    },
+    "WebSG": {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Web security groups",
+        "SecurityGroupIngress" : [
+          {
+            "IpProtocol" : "tcp",
+            "ToPort" : 80,
+            "FromPort": 80,
+            "CidrIp" : "0.0.0.0/0"
+          },
+          {
+            "IpProtocol" : "tcp",
+            "ToPort" : 22,
+            "FromPort": 22,
+            "CidrIp" : "0.0.0.0/0"
+          }
+        ],
+        "Tags" :  [{"Key": "Name", "Value": "web-sg"}],
+        "VpcId" : {"Ref": "Staging"}
+      }
+    },
+    "DatabaseRecordSet" : {
+      "Type" : "AWS::Route53::RecordSet",
+      "Properties" : {
+         "HostedZoneId" : {
+            "Ref": "StagingZone"
+         },
+         "Comment" : "DNS name for database",
+         "Name" : {"Fn::Join":[".", ["db", {"Ref": "ProjectName"}, {"Ref":"VPCName"}]]},
+         "Type" : "CNAME",
+         "TTL" : "300",
+         "ResourceRecords" : [
+           { "Fn::GetAtt" : [ "Database", "Endpoint.Address"]}
+         ]
+      }
+    }
+  }
+}
